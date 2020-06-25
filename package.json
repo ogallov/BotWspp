@@ -1,0 +1,29 @@
+{
+  "name": "bot-wspp-notification",
+  "version": "1.0.0",
+  "description": "Bot recieve and send notification through",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nathannov/bot-wspp-notification.git"
+  },
+  "keywords": [
+    "bot",
+    "wspp",
+    "send",
+    "notification",
+    "recieve"
+  ],
+  "author": "Nathannov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nathannov/bot-wspp-notification/issues"
+  },
+  "homepage": "https://github.com/Nathannov/bot-wspp-notification#readme",
+  "dependencies": {
+    "express": "4.17.1"
+  }
+}
