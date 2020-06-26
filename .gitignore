@@ -1,7 +1,10 @@
 # File created using '.gitignore Generator' for Visual Studio Code: https://bit.ly/vscode-gig
 
-# Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,linux,node
-# Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,linux,node
+# Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,node,linux,dotenv
+# Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,node,linux,dotenv
+
+### dotenv ###
+.env
 
 ### Linux ###
 *~
@@ -90,7 +93,6 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
 .env.test
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -139,7 +141,7 @@ dist
 # Ignore all local history of files
 .history
 
-# End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,linux,node
+# End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,node,linux,dotenv
 
 # Custom rules (everything added below won't be overriden by 'Generate .gitignore File' if you use 'Update' option)
 
