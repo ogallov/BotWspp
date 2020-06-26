@@ -47,9 +47,7 @@ class Message {
 
   internalError(res, message, dataError) {
     global.logger.error(message, dataError);
-    return res
-    .status(400)
-    .json({
+    return res.status(400).json({
       success: false,
       error: typeError.internalError,
       message: message,

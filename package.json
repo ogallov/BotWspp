@@ -26,10 +26,12 @@
   },
   "homepage": "https://github.com/Nathannov/bot-wspp-notification#readme",
   "dependencies": {
+    "axios": "0.19.2",
     "body-parser": "1.19.0",
     "compression": "1.7.4",
     "express": "4.17.1",
-    "helmet": "3.23.2"
+    "helmet": "3.23.2",
+    "url": "0.11.0"
   },
   "devDependencies": {
     "colors": "1.4.0",
