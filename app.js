@@ -24,7 +24,7 @@ app.use(require("./helpers/auth"));
 global.logger = require("./helpers/logger.js");
 const errorMsg = require("./helpers/error_ message");
 //config routes
-app.post("api/:version/:route/:method", requestHandler);
+app.post("/api/:version/:route/:method", requestHandler);
 app.get("/api/:version/:route/:method", requestHandler);
 app.all("*", (req, res) => {
   res.status(404).json({
