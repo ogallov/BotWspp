@@ -18,11 +18,11 @@ app.use(bodyParser.json({ limit: "40mb" }));
 app.use(bodyParser.urlencoded({ limit: "40mb", extended: true }));
 
 //Custom mindlewares
-app.use(require("./helpers/auth"));
+//app.use(require("./helpers/auth"));
 
 //Global requires
-global.logger = require("./helpers/logger.js");
-const errorMsg = require("./helpers/error_ message");
+global.logger = require("./helpers/logger");
+global.errorMsg = require("./helpers/error_message");
 //config routes
 app.post("/api/:version/:route/:method", requestHandler);
 app.get("/api/:version/:route/:method", requestHandler);
@@ -43,7 +43,7 @@ function requestHandler(req, res) {
       ".js"))();
     return route[req.params.method](req, res);
   } catch (error) {
-    return errorMsg.internalError(
+    return global.errorMsg.internalError(
       res,
       "API HAS CRASHED - " + error.message,
       req.params.route + "/" + req.params.method,

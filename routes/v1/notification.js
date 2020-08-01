@@ -1,5 +1,6 @@
 const WhatsAppHelper = require("../../helpers/whatsapp.helper");
-const shortid = require("shortid");
+const shortID = require("shortid");
+const deviceDao = require("../../dao/device");
 class Notification {
   constructor() {}
 
@@ -54,10 +55,17 @@ class Notification {
   /** */
   async connect_wapp_web(req, res) {
     const WhatsApp = new WhatsAppHelper();
-    const path_name = "./sessions/auth_info_" + shortid.generate() + ".json";
-    //save in bd path_name
+    const deviceName = "auth_info_" + shortID.generate();
+    const path_name = "./sessions/" + deviceName + ".json";
     const resp = await WhatsApp.firstConnectApi(path_name);
     let status = 200;
+    if (res.status) {
+      const myDevice = {
+        name: deviceName,
+        date_created: new Date(),
+      };
+      deviceDao.saveDevice(myDevice);
+    }
     if (!resp.status) status = 417;
     res.status(status).json(resp);
   }
