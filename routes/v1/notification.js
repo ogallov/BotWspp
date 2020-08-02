@@ -1,56 +1,9 @@
 const WhatsAppHelper = require("../../helpers/whatsapp.helper");
 const shortID = require("shortid");
 const deviceDao = require("../../dao/device");
+const fs = require("fs");
 class Notification {
   constructor() {}
-
-  /**
-   *
-   */
-  recieve_notification(req, res) {
-    console.log("recieve OK");
-    res.send("Hello World!");
-    const url =
-      "https://api.whatsapp.com/send?phone=+573176181717&text=My%20text";
-
-    const axios = require("axios").default;
-
-    const configReq = {
-      method: "get",
-      url: url,
-    };
-    axios(configReq)
-      .then((response) => {
-        // handle success
-        //console.log(response.data);
-        console.log(response.status);
-        console.log(response.statusText);
-        console.log(response.headers);
-        console.log(response.config);
-      })
-      .catch(function (error) {
-        // handle error
-        if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          console.log(error.response.status);
-          console.log(error.response.headers);
-        } else if (error.request) {
-          // The request was made but no response was received
-          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-          // http.ClientRequest in node.js
-          console.log(error.request);
-        } else {
-          // Something happened in setting up the request that triggered an Error
-          console.log("Error", error.message);
-        }
-        console.log(error.config);
-      })
-      .finally(function () {
-        // always executed
-        console.log("always");
-      });
-  }
 
   /** */
   async connect_wapp_web(req, res) {
@@ -64,6 +17,7 @@ class Notification {
         name: deviceName,
         date_created: new Date(),
       };
+      resp.device_name = deviceName;
       deviceDao.saveDevice(myDevice);
     }
     if (!resp.status) status = 417;
@@ -71,61 +25,70 @@ class Notification {
   }
 
   async send_message(req, res) {
-    const WhatsApp = new WhatsAppHelper();
-    const resp = await WhatsApp.connectApi("./sessions/auth_info_3.json");
-    let status = 200;
-    if (!resp.status) {
-      return res.status(417).json(resp);
-    }
-    WhatsApp.sendMessage(`${req.body.phone}@s.whatsapp.net`, req.body.body);
-  }
-
-  /*send_message(req, res) {
-    console.log(req.body.body);
-    Whatsapp.sendMessage(req, res);
-  }*/
-
-  get_data_ws(req, res) {
-    const url = "http://swapi.dev/api/species/1/";
-
-    const axios = require("axios").default;
-
-    const configReq = {
-      method: "get",
-      url: url,
-    };
-    axios(configReq)
-      .then((response) => {
-        // handle success
-        console.log(response.data);
-        console.log(response.status);
-        console.log(response.statusText);
-        console.log(response.headers);
-        console.log(response.config);
-      })
-      .catch(function (error) {
-        // handle error
-        if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          console.log(error.response.status);
-          console.log(error.response.headers);
-        } else if (error.request) {
-          // The request was made but no response was received
-          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-          // http.ClientRequest in node.js
-          console.log(error.request);
-        } else {
-          // Something happened in setting up the request that triggered an Error
-          console.log("Error", error.message);
-        }
-        console.log(error.config);
-      })
-      .finally(function () {
-        // always executed
-        console.log("always");
-      });
+    ckeckingActiveDevice(0, req.body, res);
   }
 }
-
 module.exports = Notification;
+
+const ckeckingActiveDevice = async (recursive, body, res) => {
+  let activeDevice = await getActiveDevice();
+  if (recursive && !activeDevice.name) {
+    return res.status(417).json({
+      status: false,
+      message: "There are not active devices",
+    });
+  } else if (!activeDevice.name) {
+    await deviceDao.changeStatusDisabledDevices(
+      { status: "disabled" },
+      { status: "enabled" }
+    );
+    setTimeout(() => {
+      ckeckingActiveDevice(++recursive, body, res);
+    }, 700);
+  } else {
+    sendMessage(activeDevice, body, res);
+  }
+};
+
+const getActiveDevice = async () => {
+  const query = { status: "enabled" },
+    fields = { name: 1 };
+  return await deviceDao.getActiveDevice(query, fields);
+};
+
+const sendMessage = async (activeDevice, body, res) => {
+  const WhatsApp = new WhatsAppHelper();
+  let resp = await WhatsApp.connectApi(
+    "./sessions/" + activeDevice.name + ".json"
+  );
+
+  let status = 200;
+  let query = { _id: activeDevice._id };
+
+  if (!resp.status) {
+    activeDevice.status = "canceled";
+    deviceDao.setDevice(query, activeDevice);
+    //Erase file to offline device and notify
+    fs.unlinkSync("./sessions/" + activeDevice.name + ".json");
+    setTimeout(() => {
+      ckeckingActiveDevice(0, body, res);
+    }, 300);
+  } else {
+    resp = await WhatsApp.sendMessage(
+      `${body.phone_number}@s.whatsapp.net`,
+      body.message
+    );
+
+    if (!resp.status) {
+      resp.device_name = activeDevice.name;
+      activeDevice.status = "canceled";
+      deviceDao.setDevice(query, activeDevice);
+      status = 417;
+    } else {
+      activeDevice.status = "disabled";
+      deviceDao.setDevice(query, activeDevice);
+    }
+
+    res.status(status).json(resp);
+  }
+};

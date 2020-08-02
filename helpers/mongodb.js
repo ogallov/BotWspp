@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const db = mongoose.connection;
 const fs = require("fs");
 const models = {};
-const { CURRENT_ENV, DB_HOST, NAME_DATABASE } = require("../config");
+const { DB_HOST, NAME_DATABASE } = require("../config");
 
 class MongoDB {
   constructor() {
@@ -18,7 +18,9 @@ class MongoDB {
     });
 
     db.once("open", () => {
-      global.logger.debug("Connection successfull to mongo in: " + CURRENT_ENV);
+      global.logger.debug(
+        "Connection successfully to mongo. DB: " + NAME_DATABASE
+      );
     });
 
     mongoose.connect("mongodb://" + DB_HOST + "/" + NAME_DATABASE, {
@@ -41,8 +43,7 @@ class MongoDB {
           global.logger.error(
             "Error saving on: " + collection + " error: " + err.message
           );
-
-        return resolve(err ? {} : item || {});
+        resolve(err ? {} : item || {});
       });
     });
   }
@@ -50,7 +51,7 @@ class MongoDB {
   findOne(collection, query = {}) {
     if (!collection) return global.logger.error("Find needs a colletion");
 
-    new Promise((resolve) => {
+    return new Promise((resolve) => {
       models[collection]
         .findOne(query.query || {}, query.fields || {})
         .lean()
@@ -67,6 +68,22 @@ class MongoDB {
             );
           return resolve(err ? {} : doc || {});
         });
+    });
+  }
+
+  updateOne(collection, query, data) {
+    return new Promise(function (resolve) {
+      models[collection].updateOne(query, data, (err, response) => {
+        resolve(err ? {} : response || {});
+      });
+    });
+  }
+
+  updateMany(collection, query, toUpdate) {
+    return new Promise(function (resolve) {
+      models[collection].updateMany(query, toUpdate, (err, response) => {
+        resolve(err ? [] : response || []);
+      });
     });
   }
 }
