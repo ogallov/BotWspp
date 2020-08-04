@@ -81,6 +81,7 @@ const sendMessage = async (activeDevice, body, res) => {
     if (!resp.status) {
       resp.device_name = activeDevice.name;
       activeDevice.status = "canceled";
+      //notification error devices
       deviceDao.setDevice(query, activeDevice);
       status = 417;
     } else {
