@@ -4,7 +4,7 @@ const fs = require("fs");
 module.exports = class {
   constructor() {
     this.client = new WhatsappBaileys();
-    this.client.autoReconnect = false;
+    this.client.autoReconnect = true;
   }
 
   //FIRST CONNECTION WHATSAPP WEB

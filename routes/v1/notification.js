@@ -68,8 +68,7 @@ const sendMessage = async (activeDevice, body, res) => {
   if (!resp.status) {
     activeDevice.status = "canceled";
     deviceDao.setDevice(query, activeDevice);
-    //Erase file to offline device and notify
-    fs.unlinkSync("./sessions/" + activeDevice.name + ".json");
+    //fs.unlinkSync("./sessions/" + activeDevice.name + ".json");
     setTimeout(() => {
       ckeckingActiveDevice(0, body, res);
     }, 300);

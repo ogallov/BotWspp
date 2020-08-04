@@ -17,9 +17,6 @@ app.use(compression());
 app.use(bodyParser.json({ limit: "40mb" }));
 app.use(bodyParser.urlencoded({ limit: "40mb", extended: true }));
 
-//Custom mindlewares
-//app.use(require("./helpers/auth"));
-
 //Global requires
 global.logger = require("./helpers/logger");
 global.errorMsg = require("./helpers/error_message");
