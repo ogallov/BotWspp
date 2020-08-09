@@ -4,7 +4,7 @@ const fs = require("fs");
 module.exports = class {
   constructor() {
     this.client = new WhatsappBaileys();
-    this.client.autoReconnect = true;
+    this.client.autoReconnect = false;
   }
 
   //FIRST CONNECTION WHATSAPP WEB
@@ -15,8 +15,7 @@ module.exports = class {
         .then(([user, chats, contacts, unread]) => {
           const authInfo = this.client.base64EncodedAuthInfo();
           fs.writeFileSync(path_file, JSON.stringify(authInfo, null, "\t"));
-
-          global.logger.info("Using account of: " + user.name);
+          //global.logger.info("Using account of: " + user.name);
           resolve({
             status: true,
             mensaje: "Connection successfully",
@@ -49,10 +48,9 @@ module.exports = class {
       this.client
         .connect(authInfo)
         .then(([user, chats, contacts, unread]) => {
-          const authInfo = this.client.base64EncodedAuthInfo();
+          //const authInfo = this.client.base64EncodedAuthInfo();
           //fs.writeFileSync(path_file, JSON.stringify(authInfo, null, "\t"));
-
-          global.logger.info("Using account of: " + user.name);
+          //global.logger.info("Using account of: " + user.name);
           resolve({
             status: true,
             mensaje: "Connection successfully",
@@ -76,7 +74,7 @@ module.exports = class {
           .sendTextMessage(toContact, message, {})
           .then(() => {
             const message = "Message sent to: " + toContact;
-            global.logger.info(message);
+            //global.logger.info(message);
             resolve({
               status: true,
               message: message,

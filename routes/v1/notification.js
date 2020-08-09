@@ -68,7 +68,12 @@ const sendMessage = async (activeDevice, body, res) => {
   if (!resp.status) {
     activeDevice.status = "canceled";
     deviceDao.setDevice(query, activeDevice);
-    //fs.unlinkSync("./sessions/" + activeDevice.name + ".json");
+    try {
+      fs.unlinkSync("./sessions/" + activeDevice.name + ".json");
+    } catch (err) {
+      global.logger.info("Error deleting file: ", activeDevice.name);
+    }
+
     setTimeout(() => {
       ckeckingActiveDevice(0, body, res);
     }, 300);
