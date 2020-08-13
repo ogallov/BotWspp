@@ -46,7 +46,7 @@ module.exports = class {
       }
 
       this.client
-        .connect(authInfo)
+        .connect(authInfo, 7000)
         .then(([user, chats, contacts, unread]) => {
           //const authInfo = this.client.base64EncodedAuthInfo();
           //fs.writeFileSync(path_file, JSON.stringify(authInfo, null, "\t"));

@@ -70,6 +70,7 @@ const sendMessage = async (activeDevice, body, res) => {
     deviceDao.setDevice(query, activeDevice);
     try {
       fs.unlinkSync("./sessions/" + activeDevice.name + ".json");
+      //notification error devices
     } catch (err) {
       global.logger.info("Error deleting file: ", activeDevice.name);
     }
@@ -86,8 +87,13 @@ const sendMessage = async (activeDevice, body, res) => {
     if (!resp.status) {
       resp.device_name = activeDevice.name;
       activeDevice.status = "canceled";
-      //notification error devices
       deviceDao.setDevice(query, activeDevice);
+      try {
+        fs.unlinkSync("./sessions/" + activeDevice.name + ".json");
+        //notification error devices
+      } catch (err) {
+        global.logger.info("Error deleting file: ", activeDevice.name);
+      }
       status = 417;
     } else {
       activeDevice.status = "disabled";
