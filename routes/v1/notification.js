@@ -2,6 +2,8 @@ const WhatsAppHelper = require("../../helpers/whatsapp.helper");
 const shortID = require("shortid");
 const deviceDao = require("../../dao/device");
 const fs = require("fs");
+const request = require("request");
+const urlNotification = "http://198.50.191.65/wpp/api.php/notfications";
 class Notification {
   constructor() {}
 
@@ -70,7 +72,16 @@ const sendMessage = async (activeDevice, body, res) => {
     deviceDao.setDevice(query, activeDevice);
     try {
       fs.unlinkSync("./sessions/" + activeDevice.name + ".json");
+
       //notification error devices
+      const dataNotification = {
+        id: activeDevice._id,
+        deviceName: activeDevice.name,
+        message:
+          "Error sending message with this device, check it connnection with network",
+      };
+
+      notificationCompanyURL(urlNotification, dataNotification, 10000);
     } catch (err) {
       global.logger.info("Error deleting file: ", activeDevice.name);
     }
@@ -90,7 +101,16 @@ const sendMessage = async (activeDevice, body, res) => {
       deviceDao.setDevice(query, activeDevice);
       try {
         fs.unlinkSync("./sessions/" + activeDevice.name + ".json");
+
         //notification error devices
+        const dataNotification = {
+          id: activeDevice._id,
+          deviceName: activeDevice.name,
+          message:
+            "Error sending message with this device, check it connnection with network",
+        };
+
+        notificationCompanyURL(urlNotification, dataNotification, 10000);
       } catch (err) {
         global.logger.info("Error deleting file: ", activeDevice.name);
       }
@@ -102,4 +122,33 @@ const sendMessage = async (activeDevice, body, res) => {
 
     res.status(status).json(resp);
   }
+};
+
+const notificationCompanyURL = async (API_URL, dataNotification, timeout) => {
+  return new Promise((resolve) => {
+    request.post(
+      {
+        url: API_URL,
+        timeout: timeout ? timeout : 5000,
+        json: dataNotification,
+      },
+      (err, httpResponse, body) => {
+        if (err) {
+          return resolve({});
+        }
+        try {
+          let newBody = {};
+          newBody.statusCode = httpResponse.statusCode;
+          newBody.body = body;
+          resolve(newBody);
+        } catch (e) {
+          logger.error(
+            "Error getting data URL: " + API_URL + " with body=" + body,
+            e
+          );
+          resolve({});
+        }
+      }
+    );
+  });
 };
